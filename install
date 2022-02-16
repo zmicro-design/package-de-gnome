@@ -1,0 +1,39 @@
+#!/bin/bash
+
+VERSION=0.0.0
+
+help() {
+  echo "Usage:"
+  echo "  zmicro package install de-gnome <args...>"
+  echo ""
+}
+
+install() {
+  export DEBIAN_FRONTEND=noninteractive
+  echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections
+
+  zmicro fn pm update -y \
+    && zmicro fn pm install -y dialog apt-utils \
+    && zmicro fn pm install -y gnome-panel \
+    && zmicro fn pm install -y gnome-settings-daemon metacity nautilus gnome-terminal ubuntu-desktop
+}
+
+core() {
+  if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    help
+    exit 0
+  fi
+
+  install
+  if [ "$?" != "0" ]; then
+    log::error "failed to install de-gnome."
+  else
+    log::success "install de-gnome success."
+  fi
+}
+
+run() {
+  core $@
+}
+
+run $@
